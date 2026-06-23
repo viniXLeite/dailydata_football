@@ -1,0 +1,39 @@
+services:
+  postgres-compose:
+    image: postgres:12.4-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: ${postgres_password}
+      POSTGRES_USERNAME: ${postgres_username}
+      POSTGRES_NAME: ${db_name}
+    ports:
+      - "5440:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - dailydata_net
+  
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${email_default_pgadmin}
+      PGADMIN_DEFAULT_PASSWORD: ${pgadmin_password}
+    ports:
+      - "15432:80"
+    depends_on:
+      - postgres-compose
+    networks:
+      - dailydata_net
+
+networks:
+  dailydata_net:
+    driver: bridge # Cria uma rede privada dentro da minha máquina e coms o nome network
+
+# Bloco de configuração de armazenamento permanente
+volumes:
+  # Garante que os dados criados dentro do conteiner não sejam voláteis
+  postgres-data:
+
+
